@@ -1,0 +1,52 @@
+from django.db import models
+
+from users.models import User
+
+
+class Habit(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+    )
+    place = models.CharField(max_length=250, verbose_name="Место", null=True, blank=True)
+    time = models.TimeField(
+        verbose_name="Время в формате YYYY-MM-DD HH:MM[:ss]",
+    )
+    action = models.CharField(max_length=500, verbose_name="Действие")
+    is_pleasant = models.BooleanField(
+        verbose_name="Признак приятной привычки",
+    )
+    related_habit = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Связанная привычка",
+    )
+    periodicity = models.PositiveSmallIntegerField(
+        default=1,
+        null=True,
+        blank=True,
+        verbose_name="Периодичность",
+    )
+    award = models.CharField(
+        max_length=500,
+        null=True,
+        blank=True,
+        verbose_name="Вознаграждение",
+    )
+    duration = models.DurationField(
+        verbose_name="Время на выполнение",
+    )
+    public_flag = models.BooleanField(
+        default=False,
+        verbose_name="Признак публичности",
+    )
+
+    class Meta:
+        verbose_name = "Привычка"
+        verbose_name_plural = "Привычки"
+
+    def __str__(self):
+        return str(self.pk)
