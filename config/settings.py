@@ -24,8 +24,10 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
     "drf_yasg",
+    "django_celery_beat",
     "users",
     "habits",
+    "telegram_reminder",
 ]
 
 MIDDLEWARE = [
@@ -113,8 +115,6 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
-STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
-
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
@@ -124,12 +124,16 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
-# CELERY_BEAT_SCHEDULE = {
-#     "disable_inactive_users": {
-#         "task": "lms.tasks.disable_inactive_users",
-#         "schedule": timedelta(days=1),
-#     },
-# }
+CELERY_BEAT_SCHEDULE = {
+    "remind_about_habit": {
+        "task": "telegram_reminder.tasks.remind_about_habit",
+        "schedule": timedelta(seconds=10),
+    },
+}
+
+TELEGRAM_URL = "https://api.telegram.org/bot"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
 
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_HOST = "smtp.yandex.ru"

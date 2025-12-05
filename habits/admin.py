@@ -17,4 +17,6 @@ class HabitAdmin(admin.ModelAdmin):
         "award",
         "related_habit",
         "public_flag",
+        "last_execution_datetime",
+        "next_execution_datetime",
     ]

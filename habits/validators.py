@@ -11,7 +11,7 @@ class DurationValidator:
     def __call__(self, attrs):
         duration = attrs.get("duration")
         duration_limit = timedelta(seconds=120)
-        if duration > duration_limit:
+        if duration and duration > duration_limit:
             raise serializers.ValidationError("Время выполнения должно быть не больше 120 секунд.")
 
 
@@ -58,18 +58,22 @@ class RelatedHabitValidator:
     - наличие у связанной привычки признака приятной привычки;
     - отсутствие связей у приятной привычки с полезными привычками при переключении атрибута приятности на False."""
 
-    def __init__(self, habit):
+    def __init__(self, habit, method):
         self.habit = habit
+        self.method = method
 
     def __call__(self, attrs):
         related_habit = attrs.get("related_habit")
+        print(related_habit)
+        print(self.habit)
         current_habit_is_pleasant = attrs.get("is_pleasant")
         if related_habit and not related_habit.is_pleasant:
             raise serializers.ValidationError("В поле связанная привычка можно указывать только приятную привычку.")
-        if related_habit == self.habit:
+        if related_habit and related_habit == self.habit:
             raise serializers.ValidationError("В поле связанная привычка нельзя указывать ту же самую привычку.")
-        if not current_habit_is_pleasant:
+        if self.method != "POST" and not current_habit_is_pleasant:
             related_useful_habits = Habit.objects.filter(related_habit=self.habit)
+            print(self.habit)
             if related_useful_habits:
                 related_useful_habits_pks = [habit.pk for habit in related_useful_habits]
                 raise serializers.ValidationError(

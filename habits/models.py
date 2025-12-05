@@ -11,7 +11,7 @@ class Habit(models.Model):
     )
     place = models.CharField(max_length=250, verbose_name="Место", null=True, blank=True)
     time = models.TimeField(
-        verbose_name="Время в формате YYYY-MM-DD HH:MM[:ss]",
+        verbose_name="Время в формате HH:MM[:ss]",
     )
     action = models.CharField(max_length=500, verbose_name="Действие")
     is_pleasant = models.BooleanField(
@@ -42,6 +42,12 @@ class Habit(models.Model):
     public_flag = models.BooleanField(
         default=False,
         verbose_name="Признак публичности",
+    )
+    last_execution_datetime = models.DateTimeField(
+        default=None, blank=True, null=True, verbose_name="Дата и время последнего выполнения"
+    )
+    next_execution_datetime = models.DateTimeField(
+        blank=True, null=True, verbose_name="Дата и время следующего выполнения"
     )
 
     class Meta:
