@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.fields import IntegerField
+from rest_framework.fields import CharField, IntegerField
 
 from habits.models import Habit
 from habits.validators import (DurationValidator, PeriodicityValidator, PleasantOrUsefulHabitValidator,
@@ -9,31 +9,35 @@ from habits.validators import (DurationValidator, PeriodicityValidator, Pleasant
 
 class HabitSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(required=False, read_only=True)
-    action = serializers.CharField()
-    periodicity = IntegerField(allow_null=True)
-    duration = serializers.DurationField()
+    time = serializers.TimeField()
     is_pleasant = serializers.BooleanField()
     related_habit = serializers.PrimaryKeyRelatedField(required=False, queryset=Habit.objects.none(), allow_null=True)
+    award = CharField(required=False, allow_null=True)
+    duration = serializers.DurationField()
+    periodicity = IntegerField(allow_null=True, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context.get("request")
         habit = self.instance
 
-        # возможность выбора у пользователя в качестве связанной привычки только своих привычек
+        # ограничение выбора для связанной привычки только своими привычками пользователя
         if request.method == "POST":
             self.fields["related_habit"].queryset = Habit.objects.filter(user=request.user)
+
         if request.method in ["PATCH", "PUT"]:
             self.fields["related_habit"].queryset = Habit.objects.filter(user=habit.user)
 
         self.validators = [
-            DurationValidator(),
-            PeriodicityValidator(),
-            PleasantOrUsefulHabitValidator(),
+            DurationValidator(habit, request.method),
+            PeriodicityValidator(habit, request.method),
+            PleasantOrUsefulHabitValidator(habit, request.method),
             RelatedHabitValidator(habit, request.method),
         ]
 
     def next_execution_datetime_generation(self, instance):
+        """Генерирует следующую ближайшую дату и время на основе введенного пользователем времени"""
+
         now_datetime = timezone.now()
         local_now = timezone.localtime(now_datetime)
         target_date = local_now.date()
@@ -47,17 +51,15 @@ class HabitSerializer(serializers.ModelSerializer):
                 timezone.datetime.combine(target_date, target_time), timezone.get_current_timezone()
             )
 
-        instance.next_execution_time = nearest_datetime
+        instance.next_execution_datetime = nearest_datetime
 
     def create(self, validated_data):
         instance = super().create(validated_data)
-        # self.user = self.context.get("request").user
         self.next_execution_datetime_generation(instance)
         return instance
 
     def update(self, instance, validated_data):
         self.next_execution_datetime_generation(instance)
-
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 

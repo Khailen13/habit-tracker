@@ -13,14 +13,18 @@ def send_telegram_messages():
     local_now = now_utc.astimezone(local_tz)
     next_time = local_now + timezone.timedelta(minutes=15)
     all_habits = Habit.objects.all()
-    selected_habits = [habit for habit in all_habits if (local_now <= habit.next_execution_datetime < next_time)]
-    if selected_habits:
-        for habit in selected_habits:
+    selected_useful_habits = [
+        habit
+        for habit in all_habits
+        if (local_now <= habit.next_execution_datetime < next_time) and not habit.is_pleasant
+    ]
+    if selected_useful_habits:
+        for habit in selected_useful_habits:
             action = habit.action
             time = habit.time
             place = habit.place
             duration = int(habit.duration.total_seconds())
-            sweet = habit.award if habit.award else habit.related_habit
+            sweet = habit.award if habit.award else habit.related_habit.action
             message = (
                 f"Привет! 👋 \nНапоминаю об атомной привычке💫\n"
                 f"Действие: {action}.\nМесто: {place}.\nВремя: {time}.\n"
