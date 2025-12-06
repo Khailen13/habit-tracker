@@ -1,4 +1,4 @@
-import pytz  # Импортируем библиотеку для работы с часовыми поясами
+import pytz
 import requests
 from django.utils import timezone
 
@@ -7,6 +7,7 @@ from habits.models import Habit
 
 
 def send_telegram_messages():
+    """Отправляет напоминание о привычке через Телеграм"""
 
     now_utc = timezone.now()
     local_tz = pytz.timezone(settings.TIME_ZONE)

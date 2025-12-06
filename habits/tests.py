@@ -12,7 +12,6 @@ class HabitTestCase(APITestCase):
         self.user1 = User.objects.create(email="user1@mail.ru", tg_chat_id="some_id1")
         self.user2 = User.objects.create(email="user2@mail.ru", tg_chat_id="some_id2")
         self.client.force_authenticate(user=self.user1)
-        # self.client.force_authenticate(user=self.user2)
         self.habit11 = Habit.objects.create(
             user=self.user1,
             place="Место 1-1",

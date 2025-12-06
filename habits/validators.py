@@ -10,9 +10,10 @@ class HabitValidator:
     При создании объекта, а также при обновлении с заполнением поля использует вводимые значения,
     при обновлении без заполнения поля использует существующие значения."""
 
-    def __init__(self, habit, method):
+    def __init__(self, user, habit, method):
         self.habit = habit
         self.method = method
+        self.user = user
 
     def get_attribute(self, attrs, key):
         # Проверяем условия для POST и (PATCH/PUT с ключом в attrs)
@@ -74,13 +75,15 @@ class RelatedHabitValidator(HabitValidator):
     """Проверяет:
     - отсутствие ссылки объекта на самого себя по полю связанного ключа;
     - наличие у связанной привычки признака приятной привычки;
-    - отсутствие связей у приятной привычки с полезными привычками при переключении атрибута приятности на False."""
+    - отсутствие связей у приятной привычки с полезными привычками при замене атрибута приятности на False."""
 
     def __call__(self, attrs):
         related_habit = self.get_attribute(attrs, "related_habit")
 
         if related_habit and not related_habit.is_pleasant:
             raise serializers.ValidationError("В поле связанная привычка можно указывать только приятную привычку.")
+        if related_habit and related_habit not in Habit.objects.filter(user=self.user):
+            raise serializers.ValidationError("В поле связанная привычка можно указывать только свои привычки.")
         if related_habit and related_habit == self.habit:
             raise serializers.ValidationError("В поле связанная привычка нельзя указывать ту же самую привычку.")
         if self.method != "POST" and "is_pleasant" in attrs:

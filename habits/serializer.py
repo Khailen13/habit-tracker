@@ -11,7 +11,7 @@ class HabitSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(required=False, read_only=True)
     time = serializers.TimeField()
     is_pleasant = serializers.BooleanField()
-    related_habit = serializers.PrimaryKeyRelatedField(required=False, queryset=Habit.objects.none(), allow_null=True)
+    related_habit = serializers.PrimaryKeyRelatedField(required=False, queryset=Habit.objects.all(), allow_null=True)
     award = CharField(required=False, allow_null=True)
     duration = serializers.DurationField()
     periodicity = IntegerField(allow_null=True, required=False)
@@ -19,20 +19,16 @@ class HabitSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context.get("request")
+
+        user = request.user
         habit = self.instance
-
-        # ограничение выбора для связанной привычки только своими привычками пользователя
-        if request.method == "POST":
-            self.fields["related_habit"].queryset = Habit.objects.filter(user=request.user)
-
-        if request.method in ["PATCH", "PUT"]:
-            self.fields["related_habit"].queryset = Habit.objects.filter(user=habit.user)
+        method = request.method
 
         self.validators = [
-            DurationValidator(habit, request.method),
-            PeriodicityValidator(habit, request.method),
-            PleasantOrUsefulHabitValidator(habit, request.method),
-            RelatedHabitValidator(habit, request.method),
+            DurationValidator(user, habit, method),
+            PeriodicityValidator(user, habit, method),
+            PleasantOrUsefulHabitValidator(user, habit, method),
+            RelatedHabitValidator(user, habit, method),
         ]
 
     def next_execution_datetime_generation(self, instance):
