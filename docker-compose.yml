@@ -1,0 +1,90 @@
+name: project
+services:
+  web:
+    restart: always
+    # image: ${DOCKER_HUB_USERNAME}/web:latest
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - db
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  nginx:
+    restart: always
+    # image: ${DOCKER_HUB_USERNAME}/nginx:latest
+    build: ./nginx
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/app/staticfiles
+    depends_on:
+      - web
+
+  db:
+    restart: always
+    image: postgres:16
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres || pg_isready -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    restart: always
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+  celery:
+    restart: always
+    # image: ${DOCKER_HUB_USERNAME}/web:latest
+    build: .
+    env_file:
+      - .env
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0  # Явное указание
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A config worker -l INFO
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery_beat:
+    restart: always
+    # image: ${DOCKER_HUB_USERNAME}/web:latest
+    build: .
+    env_file:
+      - .env
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0  # Явное указание
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A config beat -l INFO
+    depends_on:
+      - db
+      - redis
+      - celery
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:
