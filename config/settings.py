@@ -156,7 +156,7 @@ CACHES = {
         "LOCATION": os.getenv("REDIS_LOCATION", "redis://redis:6379/1"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+        },
     }
 }
 
@@ -169,5 +169,5 @@ if "test" in sys.argv:
     }
 
 USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-BASE_URL = 'http://localhost'
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+BASE_URL = "http://localhost"

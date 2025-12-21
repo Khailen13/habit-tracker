@@ -1,4 +1,5 @@
-# КР4 "Трекер полезных привычек"
+# Трекер полезных привычек
+(доступно по адресу: http://84.252.138.127/)
 
 ## Описание:
 Создано три приложения:
@@ -50,6 +51,8 @@
 * Редактирование привычки.
 * Удаление привычки.
 
+(см. http://84.252.138.127/swagger/ или http://84.252.138.127/redoc/)
+
 ## Интеграция
 Для полноценной работы сервиса реализована работа с отложенными задачами для напоминания о том, в какое время какие привычки необходимо выполнять.
 
@@ -58,18 +61,95 @@
 ## Безопасность
 Для возможности подключения фронтенда к проекту на развернутом сервере настроен CORS.
 
+## Установка:
+### Создание копии репозитория (fork)
+* Зайдите на репозиторий https://github.com/Khailen13/course_project_5.git
+* Нажмите кнопку **"Fork"** в правом верхнем углу GitHub
+* Создайте копию в своем аккаунте: `ваш-логин/course_project_5.git`
+
+### Клонирование репозитория на локальный компьютер
+Клонирование репозитория на локальный компьютер можете выполнить с использованием команды:
+```
+git clone -b feature/2 https://github.com/ВАШ-ЛОГИН/course_project_5.git
+```
+### Настройка переменных окружения (локально)
+В корне проекта создайте файл .env путем копирования файла .env.sample.
+Укажите значения для всех переменных окружения:
+* Django (SECRET_KEY, DEBUG)
+* PostgresQL (POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT)
+* Celery (CELERY_BROKER_URL, CELERY_RESULT_BACKEND)
+* Redis (REDIS_LOCATION)
+* Telegram (TELEGRAM_TOKEN)
+* Docker Hub (DOCKER_HUB_USERNAME)
+### Настройка GitHub Actions Secrets
+Файл .env с переменными окружения на сервере создается по GitHub Actions Secrets.
+
+Добавить "секреты" в своем репозитории можно вручную: Settings → Secrets and variables → Actions.
+
+Для автоматического создания секретов c использованием GitHub CLI для переменных окружения .env
+в проекте добавлен специальный модуль /scripts/sync_secrets.py.
+Запустить модуль можно после установки GitHub CLI и авторизации:
+````
+# Авторизация после установки GitHub CLI
+gh auth login
+
+# Запустите скрипт синхронизации
+python3 scripts/sync_secrets.py
+```` 
+**Кроме переменных окружения в GitHub Actions Secrets необходимо добавить**:
+* DOCKER_HUB_ACCESS_TOKEN (токен Docker Hub - Personal access tokens)
+* SERVER_IP (IP сервера)
+* SSH_USER (пользователь SSH-ключа - указывается на сервере)
+* SSH_PRIVATE_KEY (закрытая часть SSH-ключа для соединения с сервером, открытая часть - на сервере)
+
+### Настройка сервера
+Развертывания приложения на удаленном сервере (первое и последующие) выполняются через GitHub Actions.
+1. Установка необходимого ПО.
+Подключитесь к серверу и установите необходимое ПО:
+````commandline
+# Обновляем пакеты
+sudo apt update && sudo apt upgrade -y
+
+# Устанавливаем Docker через официальный скрипт
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Устанавливаем Docker Compose PLUGIN
+sudo apt install docker-compose-plugin -y
+
+# Проверяем установку
+docker --version
+docker compose version
+````
+2. Добавление пользователя в группу 'docker':
+```commandline
+sudo usermod -aG docker $USER
+exit
+# вход в систему
+```
+3. Настройка фаервола (UFW) и портов
+
+Выполните следующие команды:
+```commandline
+sudo ufw allow 22/tcp
+sudo ufw enable
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw status verbose
+```
+### Деплой
+Для выполнения автоматического деплоя через GitHub Actions
+необходимо выполнить push актуальной ветки с локального репозитория на удаленный.
+Информацию о процессе деплоя можно увидеть в Actions репозитория на GitHub.
 ## Документация
 Для реализации экранов силами фронтенд-разработчиков настроен автоматический вывод документации.
 ## Использование
-Выполните клонирование:
-```
-git clone https://github.com/Khailen13/Course_project_5
-```
-2. Установите зависимости:
-```
-poetry install
-```
-
+Для создания суперпользователя выполните команду на сервере:
+````
+docker compose exec web python manage.py csu
+````
+Данные суперпользователя указываются в модуле ./users/management/commands/csu.py
+(по умолчанию: email: admin@mail.ru; password: 123qwe).
 
 ## Тестирование
 Отчет о тестировании находится в файле "index.html" в папке htmlcov.

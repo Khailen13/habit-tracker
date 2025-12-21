@@ -2,8 +2,8 @@ name: project
 services:
   web:
     restart: always
-    # image: ${DOCKER_HUB_USERNAME}/web:latest
-    build: .
+    image: ${DOCKER_HUB_USERNAME}/web:latest
+#    build: .
     env_file:
       - .env
     ports:
@@ -22,8 +22,8 @@ services:
 
   nginx:
     restart: always
-    # image: ${DOCKER_HUB_USERNAME}/nginx:latest
-    build: ./nginx
+    image: ${DOCKER_HUB_USERNAME}/nginx:latest
+#    build: ./nginx
     env_file:
       - .env
     ports:
@@ -54,13 +54,10 @@ services:
 
   celery:
     restart: always
-    # image: ${DOCKER_HUB_USERNAME}/web:latest
-    build: .
+    image: ${DOCKER_HUB_USERNAME}/web:latest
+#    build: .
     env_file:
       - .env
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0  # Явное указание
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: celery -A config worker -l INFO
     depends_on:
       db:
@@ -70,13 +67,10 @@ services:
 
   celery_beat:
     restart: always
-    # image: ${DOCKER_HUB_USERNAME}/web:latest
-    build: .
+    image: ${DOCKER_HUB_USERNAME}/web:latest
+#    build: .
     env_file:
       - .env
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0  # Явное указание
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: celery -A config beat -l INFO
     depends_on:
       - db
