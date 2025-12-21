@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -20,7 +22,7 @@ class HabitTestCase(APITestCase):
             is_pleasant=True,
             related_habit=None,
             award=None,
-            duration="120",
+            duration=timedelta(seconds=120),
             periodicity=None,
             public_flag=True,
         )
@@ -32,7 +34,7 @@ class HabitTestCase(APITestCase):
             is_pleasant=True,
             related_habit=None,
             award=None,
-            duration="100",
+            duration=timedelta(seconds=100),
             periodicity=None,
             public_flag=True,
         )
@@ -102,7 +104,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "120",
+            "duration": timedelta(seconds=120),
             "periodicity": 1,
             "public_flag": True,
         }
@@ -121,7 +123,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "120",
+            "duration": timedelta(seconds=130),
             "periodicity": None,
             "public_flag": True,
         }
@@ -139,7 +141,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": True,
             "related_habit": None,
             "award": None,
-            "duration": "120",
+            "duration": timedelta(seconds=130),
             "periodicity": 2,
             "public_flag": True,
         }
@@ -157,7 +159,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "120",
+            "duration": timedelta(seconds=130),
             "periodicity": 0,
             "public_flag": True,
         }
@@ -175,7 +177,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "120",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
@@ -193,7 +195,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "130",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
@@ -211,7 +213,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "130",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
@@ -229,7 +231,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": True,
             "related_habit": None,
             "award": "Вознаграждение",
-            "duration": "130",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
@@ -247,7 +249,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": True,
             "related_habit": self.habit11.pk,
             "award": None,
-            "duration": "130",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
@@ -265,7 +267,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": None,
             "award": None,
-            "duration": "130",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
@@ -283,7 +285,7 @@ class HabitTestCase(APITestCase):
             "is_pleasant": False,
             "related_habit": self.habit11.pk,
             "award": "Вознаграждение 1-2",
-            "duration": "130",
+            "duration": timedelta(seconds=130),
             "periodicity": 8,
             "public_flag": True,
         }
