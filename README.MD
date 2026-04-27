@@ -63,7 +63,7 @@
 ## Использование
 Выполните клонирование:
 ```
-git clone https://github.com/Khailen13/Course_project_5
+git clone https://github.com/Khailen13/habit-tracker.git
 ```
 2. Установите зависимости:
 ```
